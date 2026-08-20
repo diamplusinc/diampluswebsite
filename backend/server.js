@@ -6,19 +6,40 @@ const csv = require('csv-parser');
 
 const app = express();
 
-// Required Middlewares
-app.use(cors());
-app.use(express.json()); // Parses incoming JSON from Axios requests
+// 1. Updated CORS Configuration for Live Domains
+const allowedOrigins = [
+  'https://diamplusinc.com',
+  'https://www.diamplusinc.com',
+  'https://diamplus-frontend.onrender.com',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Fallback allow during testing
+    }
+  },
+  credentials: true
+}));
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let diamondData = [];
 const csvFilePath = path.join(__dirname, 'diamonds.csv');
 const usersFilePath = path.join(__dirname, 'users.json');
 
-// Helper to read users from users.json file
+// Helper to read users
 const getUsers = () => {
   if (!fs.existsSync(usersFilePath)) {
-    fs.writeFileSync(usersFilePath, JSON.stringify([]));
+    try {
+      fs.writeFileSync(usersFilePath, JSON.stringify([]));
+    } catch (e) {
+      console.error('Error creating users.json:', e);
+    }
     return [];
   }
   try {
@@ -29,26 +50,40 @@ const getUsers = () => {
   }
 };
 
-// Helper to save users to users.json file
+// Helper to save users
 const saveUsers = (users) => {
-  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+  try {
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+  } catch (e) {
+    console.error('Error saving users:', e);
+  }
 };
 
 // Read CSV File on Startup
-fs.createReadStream(csvFilePath)
-  .pipe(csv())
-  .on('data', (data) => diamondData.push(data))
-  .on('end', () => {
-    console.log(`CSV Loaded Successfully. Total records: ${diamondData.length}`);
-  })
-  .on('error', (err) => {
-    console.error('Error reading CSV file:', err.message);
-  });
+if (fs.existsSync(csvFilePath)) {
+  fs.createReadStream(csvFilePath)
+    .pipe(csv())
+    .on('data', (data) => diamondData.push(data))
+    .on('end', () => {
+      console.log(`CSV Loaded Successfully. Total records: ${diamondData.length}`);
+    })
+    .on('error', (err) => {
+      console.error('Error reading CSV file:', err.message);
+    });
+} else {
+  console.error('CRITICAL: diamonds.csv file was not found in the root directory!');
+}
 
 // --- API ROUTES ---
 
-// Get Inventory
+// Protected Inventory Route
 app.get('/api/diamonds', (req, res) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Unauthorized. Please log in first.' });
+  }
+
   res.json(diamondData);
 });
 
@@ -61,30 +96,19 @@ app.post('/api/signup', (req, res) => {
   }
 
   const users = getUsers();
-
-  // Check if email already exists
   const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  
   if (existingUser) {
     return res.status(400).json({ message: 'An account with this email already exists.' });
   }
 
-  // Create and save new user
   const newUser = { id: Date.now(), name, email, company, password };
   users.push(newUser);
   saveUsers(users);
 
   res.status(201).json({ message: 'Account created successfully!' });
 });
-// Protected API Endpoint
-app.get('/api/diamonds', (req, res) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Unauthorized. Please log in first.' });
-  }
 
-  res.json(diamondData);
-});
 // Login Route
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;

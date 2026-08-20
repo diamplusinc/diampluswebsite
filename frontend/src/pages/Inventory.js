@@ -39,8 +39,8 @@ function Inventory() {
     if (!token) return;
 
     setLoading(true);
-    axios.get('http://localhost:5000/api/diamonds', {
-      headers: { Authorization: `Bearer ${token}` }
+    axios.get('https://diamplus-backend.onrender.com/api/diamonds', {
+      headers: { Authorization: token }
     })
       .then(res => {
         setDiamonds(res.data || []);

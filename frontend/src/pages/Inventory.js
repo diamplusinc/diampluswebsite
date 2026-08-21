@@ -12,6 +12,35 @@ function Inventory() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Helper function to build accurate certificate URLs for GIA & IGI
+  const getCertificateUrl = (certUrl, certNum, lab) => {
+    // If backend already provides a valid full URL, verify it isn't using the outdated IGI viewpdf route
+    if (certUrl && typeof certUrl === 'string' && certUrl.startsWith('http')) {
+      if (certUrl.includes('igi.org/viewpdf.php')) {
+        const urlParams = new URLSearchParams(certUrl.split('?')[1]);
+        const reportNo = urlParams.get('r') || certNum;
+        if (reportNo) {
+          return `https://www.igi.org/reports/verify-your-report?r=${reportNo}`;
+        }
+      }
+      return certUrl;
+    }
+
+    // Generate fallback link from certificate number and lab type
+    const rawCert = certNum || certUrl;
+    if (!rawCert) return null;
+
+    const cleanCert = rawCert.toString().trim();
+    const labType = lab ? lab.toString().toUpperCase() : '';
+
+    if (labType.includes('GIA')) {
+      return `https://www.gia.edu/report-check?reportno=${cleanCert}`;
+    }
+
+    // Default to IGI verification portal
+    return `https://www.igi.org/reports/verify-your-report?r=${cleanCert}`;
+  };
+
   // Authentication Check
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -94,7 +123,7 @@ function Inventory() {
       boxSizing: 'border-box'
     }}>
       
-      {/* Responsive Page Header & Logout Action */}
+      {/* Page Header & Logout Action */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -129,7 +158,7 @@ function Inventory() {
         </button>
       </div>
 
-      {/* Responsive Filter Toolbar */}
+      {/* Filter Toolbar */}
       <div style={{ 
         background: '#ffffff', 
         padding: '16px', 
@@ -235,7 +264,10 @@ function Inventory() {
                 const lab = d.Lab || d.lab || 'IGI';
                 const isLabGrown = d['lab grown'] === true || d['lab grown'] === 'True' || lab === 'IGI';
                 const price = d['Total Price'] || d['Price'] || d['Sell Price'];
-                const certUrl = d['Cert Url'] || d['CertUrl'] || d['Stone Detail URL'];
+                
+                const rawCertUrl = d['Cert Url'] || d['CertUrl'] || d['Stone Detail URL'];
+                const certNum = d['Cert Number'] || d['CertNumber'] || d['Certificate'] || stockNo;
+                const finalCertUrl = getCertificateUrl(rawCertUrl, certNum, lab);
 
                 return (
                   <tr key={i} style={{ borderBottom: '1px solid #e2e8f0', background: i % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
@@ -248,8 +280,8 @@ function Inventory() {
                     <td style={{ padding: '10px', fontWeight: '600', color: isLabGrown ? '#059669' : '#b45309' }}>{isLabGrown ? 'Lab Grown' : 'Natural'}</td>
                     <td style={{ padding: '10px', fontWeight: 'bold', color: '#0f172a' }}>${price ? Number(price).toLocaleString() : 'P.O.A.'}</td>
                     <td style={{ padding: '10px' }}>
-                      {certUrl ? (
-                        <a href={certUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1e3a8a', fontWeight: '600', textDecoration: 'underline' }}>View Cert</a>
+                      {finalCertUrl ? (
+                        <a href={finalCertUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1e3a8a', fontWeight: '600', textDecoration: 'underline' }}>View Cert</a>
                       ) : <span style={{ color: '#94a3b8' }}>N/A</span>}
                     </td>
                   </tr>

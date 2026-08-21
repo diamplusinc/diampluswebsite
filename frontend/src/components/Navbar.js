@@ -45,16 +45,16 @@ function Navbar() {
       }}>
         {/* Logo Container */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <img 
-            src="/logo.jpeg" 
-            alt="Diamplus" 
-            style={{ 
-              height: isMobile ? '24px' : '36px', 
-              width: 'auto', 
-              objectFit: 'contain' 
-            }} 
-          />
-        </Link>
+  <img 
+    src="/inc.png" 
+    alt="Diamplus INC." 
+    style={{ 
+      height: isMobile ? '24px' : '36px', 
+      width: 'auto', 
+      objectFit: 'contain' 
+    }} 
+  />
+</Link>
 
         {/* Links Container */}
         <div style={{

@@ -36,3 +36,72 @@
     transform: rotate(360deg);
   }
 }
+/* Ensure page container fits viewports cleanly */
+html, body, #root {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/* Navbar responsiveness */
+.navbar-container {
+  display: flex;
+  justify: space-between;
+  align-items: center;
+  padding: 15px 5%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Mobile & iPad adaptations (768px and below) */
+@media screen and (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem !important;
+    padding: 0 10px;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 12px !important;
+  }
+
+  .hero-buttons a, .hero-buttons button {
+    width: 100% !important;
+    max-width: 280px;
+  }
+
+  /* Shape Grid responsiveness */
+  .shapes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+    gap: 12px !important;
+    padding: 10px !important;
+  }
+}
+/* Responsive Grid for Diamond Shapes */
+.shapes-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile by default */
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 5 columns on laptop / desktop displays */
+@media screen and (min-width: 768px) {
+  .shapes-grid-container {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+  }
+}

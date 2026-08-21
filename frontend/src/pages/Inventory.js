@@ -86,11 +86,30 @@ function Inventory() {
   });
 
   return (
-    <div style={{ padding: '40px 20px', maxWidth: '1300px', margin: '0 auto', color: '#0f172a' }}>
+    <div style={{ 
+      padding: '20px 15px', 
+      maxWidth: '1300px', 
+      margin: '0 auto', 
+      color: '#0f172a',
+      boxSizing: 'border-box'
+    }}>
       
-      {/* Page Header & Logout Action */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ color: '#1e3a8a', fontSize: '2.2rem', fontFamily: 'Cinzel, serif', fontWeight: '700', margin: 0 }}>
+      {/* Responsive Page Header & Logout Action */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '20px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <h1 style={{ 
+          color: '#1e3a8a', 
+          fontSize: '1.8rem', 
+          fontFamily: 'Cinzel, serif', 
+          fontWeight: '700', 
+          margin: 0 
+        }}>
           Live Wholesale Inventory
         </h1>
         <button 
@@ -110,14 +129,26 @@ function Inventory() {
         </button>
       </div>
 
-      {/* Filter Toolbar */}
-      <div style={{ background: '#ffffff', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', marginBottom: '30px', display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
-        <div>
-          <label style={{ marginRight: '10px', color: '#1e3a8a', fontWeight: 'bold' }}>Shape:</label>
+      {/* Responsive Filter Toolbar */}
+      <div style={{ 
+        background: '#ffffff', 
+        padding: '16px', 
+        borderRadius: '8px', 
+        border: '1px solid #e2e8f0', 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)', 
+        marginBottom: '20px', 
+        display: 'flex', 
+        gap: '15px', 
+        flexWrap: 'wrap', 
+        alignItems: 'center', 
+        justifyContent: 'flex-start' 
+      }}>
+        <div style={{ flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <label style={{ color: '#1e3a8a', fontWeight: 'bold', fontSize: '0.85rem' }}>Shape:</label>
           <select 
             value={selectedShape} 
             onChange={e => setSelectedShape(e.target.value)} 
-            style={{ padding: '8px 12px', background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px', outline: 'none' }}
+            style={{ padding: '10px', background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px', outline: 'none', width: '100%' }}
           >
             <option value="All">All Shapes</option>
             <option value="Round">Round</option>
@@ -133,12 +164,12 @@ function Inventory() {
           </select>
         </div>
 
-        <div>
-          <label style={{ marginRight: '10px', color: '#1e3a8a', fontWeight: 'bold' }}>Origin Type:</label>
+        <div style={{ flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <label style={{ color: '#1e3a8a', fontWeight: 'bold', fontSize: '0.85rem' }}>Origin Type:</label>
           <select 
             value={selectedType} 
             onChange={e => setSelectedType(e.target.value)} 
-            style={{ padding: '8px 12px', background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px', outline: 'none' }}
+            style={{ padding: '10px', background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px', outline: 'none', width: '100%' }}
           >
             <option value="All">All Origins</option>
             <option value="Lab Grown">Lab Grown (IGI)</option>
@@ -146,19 +177,21 @@ function Inventory() {
           </select>
         </div>
 
-        <button 
-          onClick={() => { setSelectedShape('All'); setSelectedType('All'); }} 
-          style={{ padding: '8px 16px', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
-        >
-          Reset Filters
-        </button>
+        <div style={{ flex: '0 1 auto', marginTop: 'auto' }}>
+          <button 
+            onClick={() => { setSelectedShape('All'); setSelectedType('All'); }} 
+            style={{ padding: '10px 16px', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '4px', cursor: 'pointer', fontWeight: '500', width: '100%' }}
+          >
+            Reset Filters
+          </button>
+        </div>
       </div>
 
       {/* Main Content Area */}
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#1e3a8a', fontSize: '1.2rem', fontWeight: '600' }}>Loading live stock list...</p>
+        <p style={{ textAlign: 'center', color: '#1e3a8a', fontSize: '1.2rem', fontWeight: '600', padding: '40px 0' }}>Loading live stock list...</p>
       ) : filteredDiamonds.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+        <div style={{ textAlign: 'center', padding: '40px 20px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
           <p style={{ color: '#64748b', fontSize: '1.1rem' }}>No diamonds found matching shape "{selectedShape}".</p>
           <button 
             onClick={() => { setSelectedShape('All'); setSelectedType('All'); }} 
@@ -168,19 +201,28 @@ function Inventory() {
           </button>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+        /* Mobile-friendly table container with smooth horizontal scroll */
+        <div style={{ 
+          width: '100%',
+          overflowX: 'auto', 
+          WebkitOverflowScrolling: 'touch',
+          background: '#ffffff', 
+          borderRadius: '8px', 
+          border: '1px solid #e2e8f0', 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)' 
+        }}>
+          <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
             <thead>
               <tr style={{ background: '#0f172a', color: '#d4af37', borderBottom: '2px solid #1e3a8a' }}>
-                <th style={{ padding: '14px 12px' }}>Stock #</th>
-                <th style={{ padding: '14px 12px' }}>Shape</th>
-                <th style={{ padding: '14px 12px' }}>Weight</th>
-                <th style={{ padding: '14px 12px' }}>Color</th>
-                <th style={{ padding: '14px 12px' }}>Clarity</th>
-                <th style={{ padding: '14px 12px' }}>Lab</th>
-                <th style={{ padding: '14px 12px' }}>Type</th>
-                <th style={{ padding: '14px 12px' }}>Total Price</th>
-                <th style={{ padding: '14px 12px' }}>Certificate</th>
+                <th style={{ padding: '12px 10px' }}>Stock #</th>
+                <th style={{ padding: '12px 10px' }}>Shape</th>
+                <th style={{ padding: '12px 10px' }}>Weight</th>
+                <th style={{ padding: '12px 10px' }}>Color</th>
+                <th style={{ padding: '12px 10px' }}>Clarity</th>
+                <th style={{ padding: '12px 10px' }}>Lab</th>
+                <th style={{ padding: '12px 10px' }}>Type</th>
+                <th style={{ padding: '12px 10px' }}>Total Price</th>
+                <th style={{ padding: '12px 10px' }}>Certificate</th>
               </tr>
             </thead>
             <tbody>
@@ -197,15 +239,15 @@ function Inventory() {
 
                 return (
                   <tr key={i} style={{ borderBottom: '1px solid #e2e8f0', background: i % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                    <td style={{ padding: '12px', fontWeight: 'bold', color: '#1e3a8a' }}>{stockNo}</td>
-                    <td style={{ padding: '12px', color: '#334155' }}>{shape}</td>
-                    <td style={{ padding: '12px', color: '#334155' }}>{weight} ct</td>
-                    <td style={{ padding: '12px', color: '#334155' }}>{color}</td>
-                    <td style={{ padding: '12px', color: '#334155' }}>{clarity}</td>
-                    <td style={{ padding: '12px', color: '#334155' }}>{lab}</td>
-                    <td style={{ padding: '12px', fontWeight: '600', color: isLabGrown ? '#059669' : '#b45309' }}>{isLabGrown ? 'Lab Grown' : 'Natural'}</td>
-                    <td style={{ padding: '12px', fontWeight: 'bold', color: '#0f172a' }}>${price ? Number(price).toLocaleString() : 'P.O.A.'}</td>
-                    <td style={{ padding: '12px' }}>
+                    <td style={{ padding: '10px', fontWeight: 'bold', color: '#1e3a8a' }}>{stockNo}</td>
+                    <td style={{ padding: '10px', color: '#334155' }}>{shape}</td>
+                    <td style={{ padding: '10px', color: '#334155' }}>{weight} ct</td>
+                    <td style={{ padding: '10px', color: '#334155' }}>{color}</td>
+                    <td style={{ padding: '10px', color: '#334155' }}>{clarity}</td>
+                    <td style={{ padding: '10px', color: '#334155' }}>{lab}</td>
+                    <td style={{ padding: '10px', fontWeight: '600', color: isLabGrown ? '#059669' : '#b45309' }}>{isLabGrown ? 'Lab Grown' : 'Natural'}</td>
+                    <td style={{ padding: '10px', fontWeight: 'bold', color: '#0f172a' }}>${price ? Number(price).toLocaleString() : 'P.O.A.'}</td>
+                    <td style={{ padding: '10px' }}>
                       {certUrl ? (
                         <a href={certUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#1e3a8a', fontWeight: '600', textDecoration: 'underline' }}>View Cert</a>
                       ) : <span style={{ color: '#94a3b8' }}>N/A</span>}

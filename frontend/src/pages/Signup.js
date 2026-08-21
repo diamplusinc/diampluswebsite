@@ -1,130 +1,146 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 function Signup() {
-  const [form, setForm] = useState({ name: '', email: '', company: '', password: '' });
-  const [msg, setMsg] = useState('');
-  const [isError, setIsError] = useState(false);
-
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMsg('');
-    
-    axios.post('http://localhost:5000/api/signup', form)
-      .then(res => {
-        setIsError(false);
-        setMsg(res.data.message || 'Account created successfully! Redirecting to login...');
-        
-        // Redirect to login after 1.5 seconds
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
-      })
-      .catch(err => {
-        setIsError(true);
-        setMsg(err.response?.data?.message || 'Sign up failed. Please try again.');
-      });
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        'https://diamplus-backend.onrender.com/api/signup',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        navigate('/inventory');
+      } else {
+        navigate('/login');
+      }
+    } catch (err) {
+      console.error('Signup Error:', err);
+      setError(
+        err.response?.data?.message || 'Sign up failed. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ padding: '60px 20px', maxWidth: '480px', margin: '0 auto', color: '#0f172a' }}>
-      <div style={{
-        background: '#ffffff',
-        padding: '40px',
-        borderRadius: '12px',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-          {/* Logo Image */}
-          <img 
-            src="/logo.jpeg" 
-            alt="Diamplus Inc. Logo" 
-            style={{ maxHeight: '60px', width: 'auto', marginBottom: '15px', objectFit: 'contain' }} 
-            onError={(e) => {
-              // Fallback if logo image isn't found in public folder
-              e.target.style.display = 'none';
+    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ background: '#ffffff', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+        
+        <h2 style={{ color: '#1e3a8a', fontFamily: 'Cinzel, serif', fontWeight: '700', letterSpacing: '1px', marginBottom: '8px' }}>
+          CREATE ACCOUNT
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '25px' }}>
+          Join Diamplus Inc. for direct wholesale access
+        </p>
+
+        {error && (
+          <div style={{ background: '#fef2f2', color: '#dc2626', padding: '10px', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '20px', border: '1px solid #fecaca' }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#1e3a8a', marginBottom: '6px' }}>Full Name</label>
+            <input
+              type="text"
+              name="name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '0.95rem' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#1e3a8a', marginBottom: '6px' }}>Business / Company Name</label>
+            <input
+              type="text"
+              name="company"
+              required
+              value={formData.company}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '0.95rem' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#1e3a8a', marginBottom: '6px' }}>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '0.95rem' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#1e3a8a', marginBottom: '6px' }}>Password</label>
+            <input
+              type="password"
+              name="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '0.95rem' }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: '10px',
+              padding: '12px',
+              background: '#1e3a8a',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: '700',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              letterSpacing: '0.5px'
             }}
-          />
-          <h2 style={{ color: '#1e3a8a', fontSize: '1.8rem', fontFamily: 'Cinzel, serif', fontWeight: '700' }}>
-            Create Account
-          </h2>
-          <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '4px' }}>
-            Join Diamplus Inc. for direct wholesale access
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#1e3a8a', fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-              Full Name
-            </label>
-            <input 
-              type="text" 
-              className="form-input" 
-              value={form.name}
-              onChange={e => setForm({...form, name: e.target.value})} 
-              required 
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#1e3a8a', fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-              Business / Company Name
-            </label>
-            <input 
-              type="text" 
-              className="form-input" 
-              value={form.company}
-              onChange={e => setForm({...form, company: e.target.value})} 
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#1e3a8a', fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-              Email Address
-            </label>
-            <input 
-              type="email" 
-              className="form-input" 
-              value={form.email}
-              onChange={e => setForm({...form, email: e.target.value})} 
-              required 
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#1e3a8a', fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-              Password
-            </label>
-            <input 
-              type="password" 
-              className="form-input" 
-              value={form.password}
-              onChange={e => setForm({...form, password: e.target.value})} 
-              required 
-            />
-          </div>
-
-          <button type="submit" className="btn-gold" style={{ width: '100%', marginTop: '10px' }}>
-            Register Account
+          >
+            {loading ? 'CREATING ACCOUNT...' : 'REGISTER ACCOUNT'}
           </button>
         </form>
 
-        {msg && (
-          <p style={{ 
-            marginTop: '20px', 
-            color: isError ? '#dc2626' : '#059669', 
-            textAlign: 'center', 
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}>
-            {msg}
-          </p>
-        )}
+        <p style={{ marginTop: '20px', fontSize: '0.85rem', color: '#64748b' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: '#1e3a8a', fontWeight: '600', textDecoration: 'underline' }}>
+            Log In
+          </Link>
+        </p>
       </div>
     </div>
   );

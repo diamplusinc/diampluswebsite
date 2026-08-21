@@ -1,158 +1,115 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-function Login({ onLoginSuccess }) {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [showForgot, setShowForgot] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
-  const [msg, setMsg] = useState('');
-  const [isError, setIsError] = useState(false);
-
+function Login() {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setMsg('');
-    
-    axios.post('http://localhost:5000/api/login', form)
-      .then(res => {
-        setIsError(false);
-        setMsg(res.data.message || 'Login successful!');
-        
-        // Save auth token/user data returned from backend
-        if (res.data.token) {
-          localStorage.setItem('token', res.data.token);
-        }
-        if (res.data.user) {
-          localStorage.setItem('user', JSON.stringify(res.data.user));
-        }
-
-        // Trigger callback if passed from parent app
-        if (onLoginSuccess) {
-          onLoginSuccess(res.data);
-        }
-
-        // Redirect to inventory page after successful login
-        setTimeout(() => {
-          navigate('/inventory');
-        }, 1000);
-      })
-      .catch(err => {
-        setIsError(true);
-        setMsg(err.response?.data?.message || 'Invalid email or password. Please try again.');
-      });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleForgot = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsError(false);
-    setMsg(`Password reset link sent to ${resetEmail}`);
-    setShowForgot(false);
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        'https://diamplus-backend.onrender.com/api/login',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        navigate('/inventory');
+      }
+    } catch (err) {
+      console.error('Login Error:', err);
+      setError(
+        err.response?.data?.message || 'Invalid credentials. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ padding: '60px 20px', maxWidth: '450px', margin: '0 auto', color: '#0f172a' }}>
-      <div style={{
-        background: '#ffffff',
-        padding: '40px',
-        borderRadius: '12px',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>💎</div>
-          <h2 style={{ color: '#1e3a8a', fontSize: '1.8rem', fontFamily: 'Cinzel, serif', fontWeight: '700' }}>
-            Client Login
-          </h2>
-          <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '4px' }}>
-            Access wholesale inventory & diamond certificates
-          </p>
-        </div>
+    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ background: '#ffffff', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', width: '100%', maxWidth: '420px', textAlign: 'center' }}>
+        
+        <h2 style={{ color: '#1e3a8a', fontFamily: 'Cinzel, serif', fontWeight: '700', letterSpacing: '1px', marginBottom: '8px' }}>
+          MEMBER LOGIN
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '25px' }}>
+          Access live wholesale pricing and diamond stock
+        </p>
 
-        {!showForgot ? (
-          <form onSubmit={handleLogin}>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#1e3a8a', fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                Email Address
-              </label>
-              <input 
-                type="email" 
-                className="form-input" 
-                value={form.email}
-                onChange={e => setForm({...form, email: e.target.value})} 
-                required 
-              />
-            </div>
+        {error && (
+          <div style={{ background: '#fef2f2', color: '#dc2626', padding: '10px', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '20px', border: '1px solid #fecaca' }}>
+            {error}
+          </div>
+        )}
 
-            <div style={{ marginBottom: '8px' }}>
-              <label style={{ color: '#1e3a8a', fontSize: '0.85rem', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                Password
-              </label>
-              <input 
-                type="password" 
-                className="form-input" 
-                value={form.password}
-                onChange={e => setForm({...form, password: e.target.value})} 
-                required 
-              />
-            </div>
-
-            <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-              <button 
-                type="button" 
-                onClick={() => { setShowForgot(true); setMsg(''); }} 
-                style={{ background: 'none', border: 'none', color: '#1e3a8a', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline', fontWeight: '500' }}
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            <button type="submit" className="btn-gold" style={{ width: '100%' }}>
-              Login to Portal
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleForgot}>
-            <h3 style={{ color: '#1e3a8a', marginBottom: '10px', fontSize: '1.1rem', fontFamily: 'Cinzel, serif' }}>
-              Reset Password
-            </h3>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '15px' }}>
-              Enter your email to receive a password recovery link.
-            </p>
-            <input 
-              type="email" 
-              className="form-input" 
-              placeholder="Your registered email" 
-              value={resetEmail}
-              onChange={e => setResetEmail(e.target.value)} 
-              required 
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#1e3a8a', marginBottom: '6px' }}>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '0.95rem' }}
             />
-            
-            <button type="submit" className="btn-gold" style={{ width: '100%', marginBottom: '10px' }}>
-              Send Reset Link
-            </button>
-            <button 
-              type="button" 
-              onClick={() => { setShowForgot(false); setMsg(''); }} 
-              style={{ width: '100%', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', padding: '10px', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
-            >
-              Back to Login
-            </button>
-          </form>
-        )}
+          </div>
 
-        {msg && (
-          <p style={{ 
-            marginTop: '20px', 
-            color: isError ? '#dc2626' : '#059669', 
-            textAlign: 'center', 
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}>
-            {msg}
-          </p>
-        )}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#1e3a8a', marginBottom: '6px' }}>Password</label>
+            <input
+              type="password"
+              name="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', outline: 'none', fontSize: '0.95rem' }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: '10px',
+              padding: '12px',
+              background: '#1e3a8a',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: '700',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              letterSpacing: '0.5px'
+            }}
+          >
+            {loading ? 'LOGGING IN...' : 'LOG IN'}
+          </button>
+        </form>
+
+        <p style={{ marginTop: '20px', fontSize: '0.85rem', color: '#64748b' }}>
+          Don't have an account?{' '}
+          <Link to="/signup" style={{ color: '#1e3a8a', fontWeight: '600', textDecoration: 'underline' }}>
+            Create Account
+          </Link>
+        </p>
       </div>
     </div>
   );

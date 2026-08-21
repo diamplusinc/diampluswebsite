@@ -35,7 +35,7 @@ function Navbar() {
     }}>
       <nav style={{
         display: 'flex',
-        justifyContent: 'space-between',
+        justify: 'space-between',
         alignItems: 'center',
         width: '100%',
         maxWidth: '1200px',
@@ -44,24 +44,25 @@ function Navbar() {
         gap: isMobile ? '4px' : '20px'
       }}>
         {/* Logo Container */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-  <img 
-    src="/inc.png" 
-    alt="Diamplus INC." 
-    style={{ 
-      height: isMobile ? '24px' : '36px', 
-      width: 'auto', 
-      objectFit: 'contain' 
-    }} 
-  />
-</Link>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+          <img 
+            src="/11.png" 
+            alt="Diamplus INC." 
+            style={{ 
+              height: isMobile ? '28px' : '42px', 
+              width: 'auto', 
+              objectFit: 'contain',
+              display: 'block'
+            }} 
+          />
+        </Link>
 
         {/* Links Container */}
         <div style={{
           display: 'flex',
           gap: isMobile ? '6px' : '20px',
           alignItems: 'center',
-          justifyContent: 'flex-end'
+          justify: 'flex-end'
         }}>
           <Link to="/" style={getLinkStyle('/')}>Home</Link>
           <Link to="/about" style={getLinkStyle('/about')}>About Us</Link>

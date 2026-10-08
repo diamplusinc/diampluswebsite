@@ -43,7 +43,7 @@ function About() {
           <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
             <h4 style={{ color: '#1e3a8a', marginBottom: '8px', fontSize: '1rem' }}>📍 Office Address</h4>
             <p style={{ color: '#334155', lineHeight: '1.6' }}>
-              500 S. Hill St. Suite 905<br />
+              550 S. Hill St. Suite 905<br />
               Los Angeles, CA 90013
             </p>
           </div>

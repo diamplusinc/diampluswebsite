@@ -18,7 +18,7 @@ function Footer() {
         <div>
           <h4 style={{ color: '#fff' }}>Office Address</h4>
           <p style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-            500 S. Hill St. Suite 905<br />
+            550 S. Hill St. Suite 905<br />
             Los Angeles, CA 90013
           </p>
         </div>
